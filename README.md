@@ -9,9 +9,14 @@ This repository is where Sabrina Dahl will be creating an app for the final proj
 # Packages  
 The following packages were used in the creation of this app:  
 'shiny'
+'tidyverse'
+'ggplot2'
+'dplyr'
+'shinyWidgets'
+'shinydashboard'
   
 # Code to Install Packages  
-install.packages("shiny")
+install.packages(c("shiny", "tidyverse", "ggplot2", "dplyr", "shinyWidgets", "shinydashboard"))
   
 # Code to run app
 shiny::runGitHub()
