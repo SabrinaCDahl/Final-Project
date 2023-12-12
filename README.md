@@ -1,5 +1,4 @@
 # Final-Project
-ST 558 final project  
 ====================  
 Sabrina Dahl  
   
@@ -14,9 +13,10 @@ The following packages were used in the creation of this app:
 'dplyr'
 'shinyWidgets'
 'shinydashboard'
+'caret'
   
 # Code to Install Packages  
-install.packages(c("shiny", "tidyverse", "ggplot2", "dplyr", "shinyWidgets", "shinydashboard"))
+install.packages(c("shiny", "tidyverse", "ggplot2", "dplyr", "shinyWidgets", "shinydashboard", "caret"))
   
 # Code to run app
 shiny::runGitHub()
