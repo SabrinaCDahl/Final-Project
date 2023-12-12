@@ -8,33 +8,18 @@ shinyServer(function(input, output, session) {
   #dataset
   hypertension <- read_csv("Hipertension_Arterial_Mexico.csv")
   
-  #create the datasets that will be used in plots on data exploration tab
-  bloodPressure.sum <- hypertension %>% 
-    subset(select= -FOLIO_I) %>%
-    group_by(tension_arterial) %>% 
-    dplyr::summarise(proportion.hypertension = mean(riesgo_hipertension), n = n())
-  
-  activity.sum <- hypertension %>% 
-    subset(select= -FOLIO_I) %>%
-    group_by(actividad_total) %>% 
-    dplyr::summarise(proportion.hypertension = mean(riesgo_hipertension), n = n())
-  
-  age.sum <- hypertension %>% 
-    subset(select= -FOLIO_I) %>%
-    group_by(edad) %>% 
-    dplyr::summarise(proportion.hypertension = mean(riesgo_hipertension), n = n())
+  #clean the datasets that will be used in plots on data exploration tab
+  hyp <- hypertension %>% 
+    subset(select= -FOLIO_I) 
   
   #create plots for data exploration tab based on variable chosen from "plot" radioButton
   output$barPlot <- renderPlot({
     
-    if(input$plot == "point"){
-      ggplot(bloodPressure.sum, aes(x= tension_arterial, y = proportion.hypertension, size = n)) + geom_point()
+    if(input$question == TRUE){
+      ggplot(hyp, aes(x= input$plot, y = riesgo_hipertension)) + geom_point() + facet_wrap(~input$facet)
     } 
-    else if(input$plot == "point2") {
-      ggplot(activity.sum, aes(x= actividad_total, y = proportion.hypertension, size = n)) + geom_point()
-    }
-    else if(input$plot == "point3") {
-      ggplot(age.sum, aes(x= edad, y = proportion.hypertension, size = n)) + geom_point()
+    else if(input$question == FALSE) {
+      ggplot(hyp, aes(x= input$plot, y = riesgo_hipertension)) + geom_point() 
     }
   })
   

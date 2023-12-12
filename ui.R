@@ -20,8 +20,10 @@ mainPanel(
     #tab for developing graphs and summaries from the dataset
     tabPanel(title="Data Exploration",
              fluidRow(column(4,
-                 radioButtons("plot", "Select the variable to plot vs proportion.hypertension", choices = list("Blood Pressure"="point", "Total Activity"="point2", "Age"="point3"), selected = "point")
-               ),
+                 selectInput("plot", "Select the variable to plot vs hypertension", choices = list("sexo", "edad", "concentracion_hemoglobina", "temperatura_ambiente", "valor_acido_urico", "valor_albumina", "valor_colesterol_hdl", "valor_colesterol_ldl", "valor_colesterol_total", "valor_creatina", "valor_insulina", "valor_trigliceridos", "resultado_glucosa", "valor_proteinac_reactiva", "resultado_glucosa_promedio", "valor_ferritina", "valor_folato", "valor_homocisteina", "valor_transferrina", "valor_vitamina_bdoce", "valor_vitamina_d", "peso", "estatura", "tension_arterial", "sueno_horas", "masa_corporal", "actividad_total"), selected = "actividad_total"),
+                 checkboxInput("question", label = "Facet?", value = FALSE),
+                 selectInput("facet", "Select the variable to facet the plot", choices = list("sexo", "edad", "concentracion_hemoglobina", "temperatura_ambiente", "valor_acido_urico", "valor_albumina", "valor_colesterol_hdl", "valor_colesterol_ldl", "valor_colesterol_total", "valor_creatina", "valor_insulina", "valor_trigliceridos", "resultado_glucosa", "valor_proteinac_reactiva", "resultado_glucosa_promedio", "valor_ferritina", "valor_folato", "valor_homocisteina", "valor_transferrina", "valor_vitamina_bdoce", "valor_vitamina_d", "peso", "estatura", "tension_arterial", "sueno_horas", "masa_corporal", "actividad_total"), selected = "edad")
+                 ),
              column(8,
                plotOutput("barPlot")
              ))
