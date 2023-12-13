@@ -9,24 +9,24 @@ shinyServer(function(input, output, session) {
   hypertension <- read_csv("Hipertension_Arterial_Mexico.csv")
   
   #clean the datasets that will be used in plots on data exploration tab
-  hyp <- hypertension %>% 
-    subset(select= -FOLIO_I) %>%
-    group_by(tension_arterial) %>%
+  hyp <- reactive({
+    hypertension %>% 
+    group_by(!!sym(input$plot)) %>%
     dplyr::summarise(proportion.hyp = mean(riesgo_hipertension), n = n())
-  
+  })
   #create plots for data exploration tab based on variable chosen from "plot" radioButton
   output$barPlot <- renderPlot({
     
     if(input$question == TRUE){
-      ggplot(hyp, aes(x= input$plot, y = proportion.hyp, size=n)) + geom_point() + facet_wrap(~input$facet)
+      ggplot(data=hyp, aes(x= !!sym(input$plot), y = proportion.hyp, size=n)) + geom_point() + facet_wrap(~!!sym(input$facet))
     } 
     else if(input$question == FALSE) {
-      ggplot(hyp, aes(x= input$plot, y = proportion.hyp, size=n)) + geom_point() 
+      ggplot(data=hyp, aes(x= !!sym(input$plot), y = proportion.hyp, size=n)) + geom_point() 
     }
   })
   
   output$sumTable <- DT::renderDataTable({
-    var <- input$plot
+    var <- !!sym(input$plot)
     tab <- hypertension %>% 
       select("riesgo_hipertension", var) %>%
       group_by(riesgo_hipertension) %>%
@@ -46,21 +46,21 @@ shinyServer(function(input, output, session) {
     hypertension.test <- hypertension[-train.index,]
     
     #random forest model
-    rf.fit <- train(hyp_binary ~ ., data = hypertension.train,
+    rf.fit <- train(hyp_binary ~ !!sym(input$rfPred), data = hypertension.train,
           #select rf method
           method = "rf",
           #do cross validation
           trControl = trainControl(method = "cv", number = input$cvNum),
           #add tuning parameter
-          tuneGrid = data.frame(mtry = input$mtry)
+          tuneGrid = data.frame(mtry = !!sym(input$mtry))
     )
     
     #generalized linear model
-    glm.fit <- train(hyp_binary ~ ., data = hypertension.train,
+    glm.fit <- train(hyp_binary ~ !!sym(input$glmPred), data = hypertension.train,
             #select glm
             method = "glm",
             #do cross validation
-            trControl = trainControl(method = "cv", number = input$cvNum)
+            trControl = trainControl(method = "cv", number = !!sym(input$cvNum))
       )
     })
   
