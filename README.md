@@ -19,4 +19,4 @@ The following packages were used in the creation of this app:
 install.packages(c("shiny", "tidyverse", "ggplot2", "dplyr", "shinyWidgets", "shinydashboard", "caret"))
   
 # Code to run app
-shiny::runGitHub("Final-Project", "SabrinaCDahl", launch.browser = getOption("shiny.launch.browser", interactive()))
+shiny::runGitHub("Final-Project", "SabrinaCDahl")

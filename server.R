@@ -10,17 +10,28 @@ shinyServer(function(input, output, session) {
   
   #clean the datasets that will be used in plots on data exploration tab
   hyp <- hypertension %>% 
-    subset(select= -FOLIO_I) 
+    subset(select= -FOLIO_I) %>%
+    group_by(tension_arterial) %>%
+    dplyr::summarise(proportion.hyp = mean(riesgo_hipertension), n = n())
   
   #create plots for data exploration tab based on variable chosen from "plot" radioButton
   output$barPlot <- renderPlot({
     
     if(input$question == TRUE){
-      ggplot(hyp, aes(x= input$plot, y = riesgo_hipertension)) + geom_point() + facet_wrap(~input$facet)
+      ggplot(hyp, aes(x= input$plot, y = proportion.hyp, size=n)) + geom_point() + facet_wrap(~input$facet)
     } 
     else if(input$question == FALSE) {
-      ggplot(hyp, aes(x= input$plot, y = riesgo_hipertension)) + geom_point() 
+      ggplot(hyp, aes(x= input$plot, y = proportion.hyp, size=n)) + geom_point() 
     }
+  })
+  
+  output$sumTable <- DT::renderDataTable({
+    var <- input$plot
+    tab <- hypertension %>% 
+      select("riesgo_hipertension", var) %>%
+      group_by(riesgo_hipertension) %>%
+      summarize(mean = mean(get(var)))
+    tab
   })
   
   #develop binary variable of riesgo_hipertension
@@ -51,50 +62,31 @@ shinyServer(function(input, output, session) {
             #do cross validation
             trControl = trainControl(method = "cv", number = input$cvNum)
       )
-    #calculate RMSE
-    RMSE <- renderPrint({
-      rf.fit$results
-      rf.fit$bestTune
-    
-      glm.fit$results
-      glm.fit$bestTune
-    })
-    return(RMSE)
     })
   
-  #develop predictions based on models developed on Model Fitting subtab
-  output$predictions <- renderUI({
-    #split dataset based on percentage chosen by user
-    train.index <- createDataPartition(hypertension$hyp_binary, p = input$split, list = FALSE)
-    #create training/test set based on percentage split chosen by user
-    hypertension.train <- hypertension[train.index,]
-    hypertension.test <- hypertension[-train.index,]
-    #random forest model
-    rf.fit <- train(hyp_binary ~ ., data = hypertension.train,
-                    #select rf method
-                    method = "rf",
-                    #do cross validation
-                    trControl = trainControl(method = "cv", number = input$cvNum),
-                    #add tuning parameter
-                    tuneGrid = data.frame(mtry = input$mtry)
-    )
+  #RMSE of models and best of each model when action button clicked
+  rmse <- eventReactive(input$action,{
+    rf.fit$results
+    rf.fit$bestTune
     
-    #generalized linear model
-    glm.fit <- train(hyp_binary ~ ., data = hypertension.train,
-                     #select glm
-                     method = "glm",
-                     #do cross validation
-                     trControl = trainControl(method = "cv", number = input$cvNum)
-    )
-
-    #create predictions based off models
-    preds <- renderPrint({
+    glm.fit$results
+    glm.fit$bestTune
+  })
+  
+  output$rmsePrint <- renderPrint({
+    rmse
+  })
+  
+  #create predictions based off models when action button clicked
+  preds <- eventReactive(input$action,{
     pred.rf <- predict(rf.fit, newdata=hypertension.test)
     postResample(pred.rf, hypertension.test$hyp_binary)
     pred.glm <- predict(glm.fit, newdata=hypertension.test)
     postResample(pred.glm, hypertension.test$hyp_binary)
-    })
-    return(preds)
+  })
+  
+  output$predPrint <- renderPrint({
+    preds
   })
 }
 )
